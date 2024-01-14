@@ -9,7 +9,7 @@ const SideNav = async () => {
   //   const session = useSession();
   const session = await getServerSession(authOptions);
   const user = session?.user;
-  //   console.log({ user });
+  //   console.log({ session });
 
   return (
     <nav className="sticky top-2 px-2 py-4">
