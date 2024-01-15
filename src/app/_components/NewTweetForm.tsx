@@ -1,18 +1,37 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CustomButton from "./CustomButton";
 import ProfileImage from "./ProfileImage";
-import { session } from "../actions";
+import { sessionDetails } from "../actions";
+import { DefaultUser } from "next-auth";
 
 const NewTweetForm = () => {
   const [inputValue, setInputValue] = useState("");
-  console.log(session);
-  if (!session?.user) return;
+  const [session, setSession] = useState<DefaultUser>({
+    id: "",
+    name: "",
+    email: "",
+    image: "",
+  });
+  useEffect(() => {
+    const sessionFunction = async () => {
+      const session = await sessionDetails();
+      console.log(session);
+      if (session?.user) {
+        setSession(session?.user);
+      } else {
+        return;
+      }
+    };
+    sessionFunction();
+  }, []);
+
+  if (!session) return;
 
   return (
     <form className="flex flex-col gap-2 border-b px-4 py-2">
       <div className="flex gap-4">
-        {/* <ProfileImage src={session?.user?.image} /> */}
+        <ProfileImage src={session?.image} />
         <textarea
           style={{ height: 0 }}
           value={inputValue}
