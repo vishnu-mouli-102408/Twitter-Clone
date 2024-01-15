@@ -9,8 +9,8 @@ const NewTweetForm = () => {
   const [inputValue, setInputValue] = useState("");
   const [session, setSession] = useState<DefaultUser | null>(null); // Specify null as a possible type
   useEffect(() => {
-    try {
-      const sessionFunction = async () => {
+    const sessionFunction = async () => {
+      try {
         const sessionData = await sessionDetails();
         console.log(sessionData);
         if (sessionData?.user) {
@@ -18,11 +18,11 @@ const NewTweetForm = () => {
         } else {
           return;
         }
-      };
-      sessionFunction();
-    } catch (error) {
-      console.log("Error Occurred", error);
-    }
+      } catch (error) {
+        console.log("Error Occurred", error);
+      }
+    };
+    sessionFunction();
   }, []);
 
   if (!session) return null; // Return null instead of undefined
