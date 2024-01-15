@@ -9,7 +9,7 @@ const NewTweetForm = () => {
   const [inputValue, setInputValue] = useState("");
   const [session, setSession] = useState<DefaultUser | null>(null); // Specify null as a possible type
   useEffect(() => {
-    const sessionFunction = async () => {
+    const sessionFunction = async (): Promise<void> => {
       try {
         const sessionData = await sessionDetails();
         console.log(sessionData);
