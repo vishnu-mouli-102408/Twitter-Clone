@@ -22,6 +22,7 @@ const NewTweetForm = () => {
         console.log("Error Occurred", error);
       }
     };
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     sessionFunction();
   }, []);
 
