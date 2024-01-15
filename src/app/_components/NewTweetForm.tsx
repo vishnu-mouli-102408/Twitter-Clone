@@ -14,16 +14,20 @@ const NewTweetForm = () => {
     image: "",
   });
   useEffect(() => {
-    const sessionFunction = async () => {
-      const session = await sessionDetails();
-      console.log(session);
-      if (session?.user) {
-        setSession(session?.user);
-      } else {
-        return;
-      }
-    };
-    sessionFunction();
+    try {
+      const sessionFunction = async () => {
+        const session = await sessionDetails();
+        console.log(session);
+        if (session?.user) {
+          setSession(session?.user);
+        } else {
+          return;
+        }
+      };
+      sessionFunction();
+    } catch (error) {
+      console.log("Error Occured", error);
+    }
   }, []);
 
   if (!session) return;
