@@ -1,13 +1,36 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import CustomButton from "./CustomButton";
 import ProfileImage from "./ProfileImage";
 import { sessionDetails } from "../actions";
 import type { DefaultUser } from "next-auth"; // Use `import type` for types
 
+function updateTextAreaSize(textArea?: HTMLTextAreaElement) {
+  if (textArea == null) return;
+  textArea.style.height = "0";
+  textArea.style.height = `${textArea.scrollHeight}px`;
+}
+
 const NewTweetForm = () => {
   const [inputValue, setInputValue] = useState("");
   const [session, setSession] = useState<DefaultUser | null>(null); // Specify null as a possible type
+  const textAreaRef = useRef<HTMLTextAreaElement>();
+
+  const inputRef = useCallback((textArea: HTMLTextAreaElement) => {
+    updateTextAreaSize(textArea);
+    textAreaRef.current = textArea;
+  }, []);
+
+  useLayoutEffect(() => {
+    updateTextAreaSize(textAreaRef.current);
+  }, [inputValue]);
+
   useEffect(() => {
     const sessionFunction = async (): Promise<void> => {
       try {
@@ -33,6 +56,7 @@ const NewTweetForm = () => {
       <div className="flex gap-4">
         <ProfileImage src={session.image} />
         <textarea
+          ref={inputRef}
           style={{ height: 0 }}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
@@ -40,7 +64,7 @@ const NewTweetForm = () => {
           placeholder="What's on your mind today?" // Corrected the typo in the placeholder
         />
       </div>
-      <CustomButton className="self-end">Send</CustomButton>
+      <CustomButton className="self-end">Tweet</CustomButton>
     </form>
   );
 };
