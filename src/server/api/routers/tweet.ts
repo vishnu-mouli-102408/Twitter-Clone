@@ -7,36 +7,61 @@ import {
 } from "~/server/api/trpc";
 
 export const tweetRouter = createTRPCRouter({
-  hello: publicProcedure
-    .input(z.object({ text: z.string() }))
-    .query(({ input }) => {
+  infiniteFeed: publicProcedure
+    .input(
+      z.object({
+        limit: z.number().optional(),
+        cursor: z.object({ id: z.string(), createdAt: z.date() }).nullish(),
+      }),
+    )
+    .query(async ({ input: { limit = 10, cursor }, ctx }) => {
+      const currentUserId = ctx.session?.user.id;
+      const tweets = await ctx.db.tweet.findMany({
+        take: limit + 1,
+        cursor: cursor ? { createdAt_id: cursor } : undefined,
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        select: {
+          id: true,
+          content: true,
+          createdAt: true,
+          _count: { select: { likes: true } },
+          likes:
+            currentUserId == null
+              ? false
+              : { where: { userId: currentUserId } },
+          user: { select: { id: true, name: true, image: true } },
+        },
+      });
+
+      let nextCursor: typeof cursor | undefined;
+      if (tweets.length > limit) {
+        const nextItem = tweets.pop();
+        if (nextItem != null) {
+          nextCursor = { id: nextItem.id, createdAt: nextItem.createdAt };
+        }
+      }
+
       return {
-        greeting: `Hello ${input.text}`,
+        tweets: tweets.map((tweet) => {
+          return {
+            id: tweet.id,
+            content: tweet.content,
+            createdAt: tweet.createdAt,
+            likesCount: tweet._count.likes,
+            isLiked: tweet.likes.length > 0,
+            user: tweet.user,
+          };
+        }),
+        nextCursor,
       };
     }),
 
   create: protectedProcedure
-    .input(z.object({ name: z.string().min(1) }))
-    .mutation(async ({ ctx, input }) => {
-      // simulate a slow db call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      return ctx.db.post.create({
-        data: {
-          name: input.name,
-          createdBy: { connect: { id: ctx.session.user.id } },
-        },
+    .input(z.object({ content: z.string() }))
+    .mutation(async (opts) => {
+      const tweet = await opts.ctx.db.tweet.create({
+        data: { content: opts.input.content, userId: opts.ctx.session.user.id },
       });
+      return tweet;
     }),
-
-  getLatest: protectedProcedure.query(({ ctx }) => {
-    return ctx.db.post.findFirst({
-      orderBy: { createdAt: "desc" },
-      where: { createdBy: { id: ctx.session.user.id } },
-    });
-  }),
-
-  getSecretMessage: protectedProcedure.query(() => {
-    return "you can now see this secret message!";
-  }),
 });

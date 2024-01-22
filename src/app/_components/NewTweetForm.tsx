@@ -8,8 +8,9 @@ import React, {
 } from "react";
 import CustomButton from "./CustomButton";
 import ProfileImage from "./ProfileImage";
-import { sessionDetails } from "../actions";
+import { createTweet, sessionDetails } from "../actions";
 import type { DefaultUser } from "next-auth"; // Use `import type` for types
+import { api } from "~/trpc/server";
 
 function updateTextAreaSize(textArea?: HTMLTextAreaElement) {
   if (textArea == null) return;
@@ -31,11 +32,21 @@ const NewTweetForm = () => {
     updateTextAreaSize(textAreaRef.current);
   }, [inputValue]);
 
+  // const createTweet = api.post.create;
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!inputValue) return;
+    const tweet = await createTweet({ content: inputValue });
+    console.log("TWEET", tweet);
+    setInputValue("");
+  }
+
   useEffect(() => {
     const sessionFunction = async (): Promise<void> => {
       try {
         const sessionData = await sessionDetails();
-        console.log(sessionData);
+        // console.log("USER",sessionData);
         if (sessionData?.user) {
           setSession(sessionData?.user);
         } else {
@@ -52,7 +63,10 @@ const NewTweetForm = () => {
   if (!session) return null; // Return null instead of undefined
 
   return (
-    <form className="flex flex-col gap-2 border-b px-4 py-2">
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-2 border-b px-4 py-2"
+    >
       <div className="flex gap-4">
         <ProfileImage src={session.image} />
         <textarea
@@ -64,7 +78,9 @@ const NewTweetForm = () => {
           placeholder="What's on your mind today?" // Corrected the typo in the placeholder
         />
       </div>
-      <CustomButton className="self-end">Tweet</CustomButton>
+      <CustomButton type="submit" className="self-end">
+        Tweet
+      </CustomButton>
     </form>
   );
 };
