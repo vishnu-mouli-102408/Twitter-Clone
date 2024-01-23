@@ -72,7 +72,7 @@ function RecentTweets() {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     },
   );
-  console.log("TWEETS LIST", tweets);
+  // console.log("TWEETS LIST", tweets);
 
   return (
     <InfiniteTweetList

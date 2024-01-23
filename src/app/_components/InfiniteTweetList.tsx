@@ -3,6 +3,7 @@ import React from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import ProfileImage from "./ProfileImage";
 import TweetCard from "./TweetCard";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 export type Tweet = {
   id: string;
@@ -32,7 +33,7 @@ const InfiniteTweetList = ({
   isLoading,
   hasMore = false,
 }: InfiniteTweetListProps) => {
-  if (isLoading) return <h1>Loading...</h1>;
+  if (isLoading) return <LoadingSpinner />;
   if (isError) return <h1>Error...</h1>;
   if (tweets == null || tweets.length === 0)
     return (
@@ -46,7 +47,7 @@ const InfiniteTweetList = ({
         dataLength={tweets.length}
         next={fetchNewTweets}
         hasMore={hasMore}
-        loader={<h4>Loading...</h4>}
+        loader={<LoadingSpinner />}
       >
         {tweets.map((tweet) => {
           return <TweetCard key={tweet.id} {...tweet} />;
