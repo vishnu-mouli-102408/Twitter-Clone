@@ -95,7 +95,7 @@ async function getInfiniteTweets({
   });
 
   let nextCursor: typeof cursor | undefined;
-  if (tweets.length > limit) {
+  if (tweets?.length > limit) {
     const nextItem = tweets.pop();
     if (nextItem != null) {
       nextCursor = { id: nextItem.id, createdAt: nextItem.createdAt };
@@ -109,7 +109,7 @@ async function getInfiniteTweets({
         content: tweet.content,
         createdAt: tweet.createdAt,
         likesCount: tweet._count.likes,
-        isLiked: tweet.likes.length > 0,
+        isLiked: tweet.likes?.length > 0,
         user: tweet.user,
       };
     }),
