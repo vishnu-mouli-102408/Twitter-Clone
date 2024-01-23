@@ -57,15 +57,15 @@ const NewTweetForm = () => {
       setInputValue("");
       if (session?.id == null) return;
       trpcUtils.tweet.infiniteFeed.setInfiniteData({}, (oldData) => {
-        if (oldData == null || oldData.pages[0] == null) return;
+        if ((oldData == null || undefined) ?? oldData.pages[0] == null) return;
         const newCachedTweet = {
           ...newTweet,
           likesCount: 0,
           isLiked: false,
           user: {
             id: session.id,
-            name: session.name || null,
-            image: session.image || null,
+            name: session.name ?? null,
+            image: session.image ?? null,
           },
         };
 
