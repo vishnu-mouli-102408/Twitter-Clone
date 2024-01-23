@@ -8,9 +8,16 @@ import IconHoverEffect from "./IconHoverEffect";
 type HeartButtonProps = {
   isLiked: boolean;
   likesCount: number;
+  onClick: () => void;
+  isLoading: boolean;
 };
 
-const HeartButton = ({ isLiked, likesCount }: HeartButtonProps) => {
+const HeartButton = ({
+  isLiked,
+  likesCount,
+  isLoading,
+  onClick,
+}: HeartButtonProps) => {
   const [session, setSession] = useState<DefaultUser | null>(null); // Specify null as a possible type
   useEffect(() => {
     const sessionFunction = async (): Promise<void> => {
@@ -45,8 +52,8 @@ const HeartButton = ({ isLiked, likesCount }: HeartButtonProps) => {
 
   return (
     <button
-      // disabled={isLoading}
-      // onClick={onClick}
+      disabled={isLoading}
+      onClick={onClick}
       className={`group -ml-2 flex items-center gap-1 self-start transition-colors duration-200 ${
         isLiked
           ? "text-red-500"

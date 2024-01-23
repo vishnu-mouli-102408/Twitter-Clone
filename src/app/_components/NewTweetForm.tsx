@@ -8,9 +8,9 @@ import React, {
 } from "react";
 import CustomButton from "./CustomButton";
 import ProfileImage from "./ProfileImage";
-import { createTweet, sessionDetails } from "../actions";
+import { sessionDetails } from "../actions";
 import type { DefaultUser } from "next-auth"; // Use `import type` for types
-import { api } from "~/trpc/server";
+import { api } from "~/trpc/react";
 
 function updateTextAreaSize(textArea?: HTMLTextAreaElement) {
   if (textArea == null) return;
@@ -22,25 +22,6 @@ const NewTweetForm = () => {
   const [inputValue, setInputValue] = useState("");
   const [session, setSession] = useState<DefaultUser | null>(null); // Specify null as a possible type
   const textAreaRef = useRef<HTMLTextAreaElement>();
-
-  const inputRef = useCallback((textArea: HTMLTextAreaElement) => {
-    updateTextAreaSize(textArea);
-    textAreaRef.current = textArea;
-  }, []);
-
-  useLayoutEffect(() => {
-    updateTextAreaSize(textAreaRef.current);
-  }, [inputValue]);
-
-  // const createTweet = api.post.create;
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!inputValue) return;
-    const tweet = await createTweet({ content: inputValue });
-    console.log("TWEET", tweet);
-    setInputValue("");
-  }
 
   useEffect(() => {
     const sessionFunction = async (): Promise<void> => {
@@ -59,6 +40,55 @@ const NewTweetForm = () => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     sessionFunction();
   }, []);
+
+  const inputRef = useCallback((textArea: HTMLTextAreaElement) => {
+    updateTextAreaSize(textArea);
+    textAreaRef.current = textArea;
+  }, []);
+
+  const trpcUtils = api.useUtils();
+
+  useLayoutEffect(() => {
+    updateTextAreaSize(textAreaRef.current);
+  }, [inputValue]);
+
+  const createTweet = api.tweet.create.useMutation({
+    onSuccess: (newTweet) => {
+      setInputValue("");
+      if (session?.id == null) return;
+      trpcUtils.tweet.infiniteFeed.setInfiniteData({}, (oldData) => {
+        if (oldData == null || oldData.pages[0] == null) return;
+        const newCachedTweet = {
+          ...newTweet,
+          likesCount: 0,
+          isLiked: false,
+          user: {
+            id: session.id,
+            name: session.name || null,
+            image: session.image || null,
+          },
+        };
+
+        return {
+          ...oldData,
+          pages: [
+            {
+              ...oldData.pages[0],
+              tweets: [newCachedTweet, ...oldData.pages[0].tweets],
+            },
+            ...oldData.pages.slice(1),
+          ],
+        };
+      });
+    },
+  });
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!inputValue) return;
+    const tweet = createTweet.mutate({ content: inputValue });
+    // console.log("TWEET", tweet);
+  }
 
   if (!session) return null; // Return null instead of undefined
 

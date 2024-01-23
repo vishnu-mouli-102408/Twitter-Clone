@@ -30,7 +30,7 @@ const InfiniteTweetList = ({
   fetchNewTweets,
   isError,
   isLoading,
-  hasMore,
+  hasMore = false,
 }: InfiniteTweetListProps) => {
   if (isLoading) return <h1>Loading...</h1>;
   if (isError) return <h1>Error...</h1>;
