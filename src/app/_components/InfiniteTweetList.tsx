@@ -45,7 +45,7 @@ const InfiniteTweetList = ({
       <InfiniteScroll
         dataLength={tweets.length}
         next={fetchNewTweets}
-        hasMore={hasMore!}
+        hasMore={hasMore}
         loader={<h4>Loading...</h4>}
       >
         {tweets.map((tweet) => {
