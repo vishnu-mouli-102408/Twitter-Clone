@@ -39,7 +39,7 @@ export default async function ProflePage({
   const profile = await getUserData(params.id);
   console.log("DATA", profile);
 
-  if (profile == null || profile.name == null) {
+  if (!profile?.name) {
     return {
       redirect: {
         destination: "/",
