@@ -17,9 +17,9 @@ const getUserData = cache(async (id: string) => {
     }
     console.log({ res });
     return res;
-  } catch (error: any) {
+  } catch (error) {
     // Handle error, maybe log it or return a default value
-    console.error("Error fetching data:", error.message);
+    console.error("Error fetching data:", error);
     throw error; // Rethrow the error or handle it as needed
   }
 });
