@@ -88,7 +88,7 @@ export default async function ProflePage({
       <main>
         {tweets.tweets.map((tweet) => {
           return (
-            <li className="flex gap-4 border-b px-4 py-4">
+            <li className="flex gap-4 border-b px-4 py-4" key={tweet.id}>
               <Link href={`/profiles/${tweet.id}`}>
                 <ProfileImage src={tweet.user.image} />
               </Link>
