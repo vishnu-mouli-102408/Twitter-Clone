@@ -9,7 +9,7 @@ import ProfileImage from "~/app/_components/ProfileImage";
 import FollowButton from "~/app/_components/FollowButton";
 import TweetCard from "~/app/_components/TweetCard";
 
-export const getUserData = cache(async (id: string) => {
+const getUserData = cache(async (id: string) => {
   try {
     const res = await api.profile.getById.query({ id });
     if (!res) {
